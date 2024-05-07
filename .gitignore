@@ -1,41 +1,82 @@
-# Compiled Lua sources
-luac.out
+local Players = gameGetService(Players)
+local ReplicatedStorage = gameGetService(ReplicatedStorage)
+local objs = gameGetObjects(rbxassetid://17418072014)
+local Workspace = gameGetService(Workspace)
+objs[1].Parent = gameGetService(ReplicatedStorage)
 
-# luarocks build files
-*.src.rock
-*.zip
-*.tar.gz
+local function weldmodel(model)
+    for i,v in pairs(modelGetDescendants()) do
+        if vIsA(Part) then
+            weld = Instance.new(WeldConstraint,model)
+            weld.Part0 = model.PrimaryPart
+            weld.Part1 = v
+            v.Anchored = false
+            v.CanCollide = false
+        end
+    end
+end
 
-# Object files
-*.o
-*.os
-*.ko
-*.obj
-*.elf
+local index = {
+    wood = {
+        wood_sword,
+        objs[1].wood
+    },
+    stone = {
+        stone_sword,
+        objs[1].stone
+    },
+    iron = {
+        iron_sword,
+        objs[1].iron
+    },
+    diamond = {
+        diamond_sword,
+        objs[1].diamond
+    },
+    emerald = {
+        emerald_sword,
+        objs[1].emerald
+    },
+    rageblade = {
+        rageblade,
+        objs[1].rageblade
+    },
+}
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-*.def
-*.exp
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
+local VM = workspace.Camera.Viewmodel
+VM.ChildAddedConnect(function()
+    for i,v in pairs(VMGetChildren()) do
+        for _,indexed in pairs(index) do
+            if indexed[1] == v.Name then
+                local new = indexed[2]Clone()
+                weldmodel(new)
+                for i,v in pairs(vGetDescendants()) do
+                    if vIsA(Part) or vIsA(UnionOperation) or vIsA(MeshPart) then
+                        v.Transparency = 1
+                    end
+                end
+                new.Parent = v
+                new.PrimaryPart.CFrame = v.Handle.CFrame  CFrame.Angles(0,math.rad(90),0)
+                local weld1 = Instance.new(WeldConstraint,v)
+                weld1.Part0 = new.PrimaryPart
+                weld1.Part1 = v.Handle
+                local ThirdPersonItem = game.Players.LocalPlayer.CharacterFindFirstChild(v.Name)
+                if ThirdPersonItem then
+                    print(3rd person item found,v.Name)
+                    local CharacterItem = indexed[2]Clone()
+                    weldmodel(CharacterItem)
+                    for i,v in pairs(ThirdPersonItemGetDescendants()) do
+                        if vIsA(Part) or vIsA(UnionOperation) or vIsA(MeshPart) then
+                            v.Transparency = 1
+                        end
+                    end
+                    CharacterItem.Parent = ThirdPersonItem
+                    CharacterItem.PrimaryPart.CFrame = ThirdPersonItem.Handle.CFrame  CFrame.new(0,-0.45,0)  CFrame.Angles(0,math.rad(90),0)
+                    local weld2 = Instance.new(WeldConstraint,CharacterItem)
+                    weld2.Part0 = CharacterItem.PrimaryPart
+                    weld2.Part1 = ThirdPersonItem.Handle
+                end
+            end
+        end
+    end
+end)
